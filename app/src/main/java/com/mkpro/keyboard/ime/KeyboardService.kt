@@ -7,6 +7,8 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.Lifecycle
 import com.mkpro.keyboard.core.connection.ConnectionManager
@@ -22,6 +24,7 @@ import com.mkpro.keyboard.ui.screens.keyboard.KeyboardScreen
 import com.mkpro.keyboard.ui.theme.MechanicalKeyboardProTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 /**
@@ -74,7 +77,11 @@ class KeyboardService : InputMethodService() {
         val composeView = ComposeView(this).apply {
             setContent {
                 val render: KeyboardRenderState by controller.state.collectAsState()
-                val connectionState: ConnectionState by connectionManager!!.connectionState.collectAsState()
+
+                // FIX: استخدام remember و MutableStateFlow بدلاً من !!
+                val connectionState by remember {
+                    connectionManager?.connectionState ?: MutableStateFlow(ConnectionState())
+                }.collectAsState()
 
                 MechanicalKeyboardProTheme {
                     KeyboardScreen(
